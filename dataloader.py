@@ -56,22 +56,30 @@ class ImageNet_Dataloader(data.Dataset):
         return len(self.files)
 
     def __getitem__(self, index):
+
+        #put all the RGB images into one folder, and mask into another folder
         rgb_path = self.files[index]
         tmp_path = rgb_path.split('/')
         #/media/tensor-server/ee577d95-535d-40b2-88db-5546defabb74/imagenet20_rgbmsk_v0/ImageNet20/aeroplane/n02691156/n02691156_4.JPEG
         #/media/tensor-server/ee577d95-535d-40b2-88db-5546defabb74/imagenet20_rgbmsk_v0/mask_output20/ImageNet20_refined_crabcut/aeroplane/n02691156_4.jpg
 
-        mask_path = '/media/tensor-server/ee577d95-535d-40b2-88db-5546defabb74/imagenet20_rgbmsk_v0/mask_output20/ImageNet20_refined_crabcut/' + tmp_path[-3] + '/' + tmp_path[-1][:-4] + 'jpg'
-
+       # you can save the path of RGB image of its mask into a file
+        mask_path = './data/masks/' + tmp_path[-1][:-4] + 'jpg'
+        print(rgb_path)
+        print(mask_path)
         rgb_img = Image.open(rgb_path).convert('RGB')
         mask = Image.open(mask_path)
+
+        #resize each image into128*128
         rgb_img = rgb_img.resize((128,128), Image.BICUBIC)
+
+        #must use NEARESTn method when resizing the mask
         mask = mask.resize((128,128), Image.NEAREST)
 
         mask = np.array(mask)
         mask = mask[:,:,0]
-        mask[mask!=255] = 0
-        mask = mask/255
+        mask[mask!=255] = 1
+        mask[mask==255] = 0
         if self.is_transform:
             img,msk = self.transform(rgb_img,mask)
         return img, msk

@@ -6,45 +6,44 @@ import numpy as np
 # Generator network to generate fake images from noise
 # Input is 1*100 noise vector, the output is 128*128 images
 class netG(nn.Module):
-    def __init__(self, ngpu):
+    def __init__(self):
         super(netG, self).__init__()
-        self.ngpu = ngpu
         self.main = nn.Sequential(
-            # input is Z, going into a convolution
-            nn.ConvTranspose2d(     100, 512, 4, 1, 0, bias=False),
+
+            nn.ConvTranspose2d(100, 512, 4, 1, 0, bias=False),
             nn.BatchNorm2d(64 * 8),
-            nn.nn.ReLU(True),
+            nn.ReLU(True),
             # state size. (ngf*8) x 4 x 4
             nn.ConvTranspose2d(512, 256, 4, 2, 1, bias=False),
             nn.BatchNorm2d(256),
-            nn.nn.ReLU(True),
+            nn.ReLU(True),
             # state size. (ngf*4) x 8 x 8
             nn.ConvTranspose2d(256, 128, 4, 2, 1, bias=False),
             nn.BatchNorm2d(128),
-            nn.nn.ReLU(True),
+            nn.ReLU(True),
             # state size. (ngf*2) x 16 x 16
             nn.ConvTranspose2d(128,     64, 4, 2, 1, bias=False),
             nn.BatchNorm2d(64),
-            nn.nn.ReLU(True),
+            nn.ReLU(True),
 
             # state size. (ngf*2) x 32 x 32
             nn.ConvTranspose2d(64,     32, 4, 2, 1, bias=False),
             nn.BatchNorm2d(32),
-            nn.nn.ReLU(True),
+            nn.ReLU(True),
 
             # state size. (ngf) x 64 x 64
             nn.ConvTranspose2d(    32,      3, 4, 2, 1, bias=False),
             nn.Tanh()
             # state size. (nc) x 128 x 128
         )
-        slef.main.apply(weights_init_xavier)
 
     def forward(self, input):
         output = self.main(input)
         return output
+# The output is range from 0 to 1
 
 
-# Discriminator Network SegNet
+# Discriminator Without Max Pooling
 class netD(nn.Module):
 
     def __init__(self, num_classes=1):
@@ -90,7 +89,7 @@ class netD(nn.Module):
             nn.ReLU(inplace=True))
         self.down4_pool = nn.Sequential(nn.MaxPool2d(kernel_size=2, stride=2))
 
-        # 8*8
+        # 512*8*8
         self.center = nn.Sequential(
             nn.Conv2d(512, 1024, kernel_size=3, stride=1, padding=1),
             nn.BatchNorm2d(1024),
@@ -193,5 +192,7 @@ class netD(nn.Module):
         up1 = self.up1(up1)
 
         prob = self.classifier(up1)
+
+
         # print(prob.size())
         return prob
