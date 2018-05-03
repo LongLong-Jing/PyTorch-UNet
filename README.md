@@ -16,7 +16,6 @@ cd vision
 python setup.py install
 ```
 
-```
 - Clone this repo:
 ```bash
 git clone https://github.com/LongLong-Jing/PyTorch-UNet
