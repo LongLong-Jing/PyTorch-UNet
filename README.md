@@ -1,5 +1,5 @@
 # PyTorch-UNet
-PyTorch Implementation for Segmentation and Saliency Prediction
+PyTorch Implementation for Foreground Segmentation and Saliency Prediction
 
 ## Prerequisites
 - Linux or macOS
